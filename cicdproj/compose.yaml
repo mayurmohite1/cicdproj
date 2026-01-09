@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:15
+    ports: 
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: journal_db
+    volumes:
+      - ./app/db-init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      
+    restart: always
+  backend_api:
+    # build: 
+    #   context: .
+    #   args:
+    #     VERSION: ${BUILD_NUMBER}
+    image: mayurmohite1/cicd_journal_app:1.0.${BUILD_NUMBER}
+    ports: 
+      - 8000:8000
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: journal_db
+      DATABASE_URL: "postgresql://postgres:postgres@postgres/journal_db"
+    

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  namespace:
+  labels: 
+    app: app-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: app-api
+  template:
+    metadata:
+      labels:
+        app: app-api
+    spec:
+      containers:
+      - name: app-api
+        image: mayurmohite1/cicd_journal_app:1.0.1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: db-username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: db-password
+        - name: POSTGRES_DB
+          valueFrom: 
+            configMapKeyRef:
+              name: db-configmap
+              key: db-name
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: db-url
+---
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  selector:
+    app: app-api
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+    nodePort: 30000

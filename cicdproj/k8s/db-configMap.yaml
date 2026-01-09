@@ -1,0 +1,6 @@
+apiVersion: apps/v1
+kind: ConfigMap
+metadata:
+  name: db-configmap
+data:
+  db-name: journal_db
