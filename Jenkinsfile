@@ -12,33 +12,73 @@ pipeline {
         script {
           echo "Building the app and testing..."
           sh "docker build -t mayurmohite1/cicd_journal_app:1.0.${BUILD_NUMBER} ."
-          sh '''
-            docker compose -f compose.yaml up -d
-            sleep 5
-            curl -X POST http://localhost:8000/entries \
-            -H "Content-Type: application/json" \
-            -d '{
-                "work": "Kubernetes", 
-                "struggle": "learning",
-                "intention": "To build something" 
-            }'
-            curl -X GET http://localhost:8000/entries
-            echo "test successful" 
+          // sh '''
+          //   docker compose -f compose.yaml up -d
+          //   sleep 5
+          //   curl -X POST http://localhost:8000/entries \
+          //   -H "Content-Type: application/json" \
+          //   -d '{
+          //       "work": "Kubernetes", 
+          //       "struggle": "learning",
+          //       "intention": "To build something" 
+          //   }'
+          //   curl -X GET http://localhost:8000/entries
+          //   echo "test successful" 
             
-          '''
+          // '''
+             sh '''
+                docker compose -f compose.yaml down || true
+                docker compose -f compose.yaml up -d
+                sleep 10
+                curl -X POST http://localhost:8000/entries \
+                -H "Content-Type: application/json" \
+                -d '{
+                      "work": "Kubernetes",
+                      "struggle": "learning",
+                      "intention": "To build something"
+                  }'
+                curl -X GET http://localhost:8000/entries
+                echo "test successful"
+    '''
+
         }
       }
     }
-    stage ("Docker push") {
-      steps {
-        script {
-          echo "Pushing to Docker Registry"
-          def version = "1.0.${BUILD_NUMBER}"
-          sh "docker push mayurmohite1/cicd_journal_app:${version}"
-          sh "docker compose -f compose.yaml down"
-        }
-      }
-    }
+    // stage ("Docker push") {
+    //   steps {
+    //     script {
+    //       echo "Pushing to Docker Registry"
+    //       def version = "1.0.${BUILD_NUMBER}"
+    //       sh "docker push mayurmohite1/cicd_journal_app:${version}"
+    //       sh "docker compose -f compose.yaml down"
+    //     }
+    //   }
+    // }
+       stage ("Docker push") {
+            steps {
+              script {
+                echo "Pushing to Docker Registry"
+                def version = "1.0.${BUILD_NUMBER}"
+
+                withCredentials([usernamePassword(
+                  credentialsId: 'dockerhub',
+                  usernameVariable: 'DOCKER_USER',
+                  passwordVariable: 'DOCKER_PASS'
+                )]) {
+                  sh """
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push mayurmohite1/cicd_journal_app:${version}
+                    docker logout
+                  """
+                }
+
+                sh "docker compose -f compose.yaml down || true"
+              }
+            }
+          }
+
+
+      
     stage ("Provisioning") {
       steps {
         script {
