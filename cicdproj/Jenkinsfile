@@ -15,7 +15,7 @@ pipeline {
           sh '''
             docker compose -f compose.yaml up -d
             sleep 5
-            curl -X POST http://host.docker.internal:8000/entries \
+            curl -X POST http://localhost:8000/entries \
             -H "Content-Type: application/json" \
             -d '{
                 "work": "Kubernetes", 
