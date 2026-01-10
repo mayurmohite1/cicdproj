@@ -65,11 +65,11 @@ pipeline {
                   usernameVariable: 'DOCKER_USER',
                   passwordVariable: 'DOCKER_PASS'
                 )]) {
-                  sh """
+                  sh '''
                     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                     docker push mayurmohite1/cicd_journal_app:${version}
                     docker logout
-                  """
+                  '''
                 }
 
                 sh "docker compose -f compose.yaml down || true"
