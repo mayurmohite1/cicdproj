@@ -22,7 +22,7 @@ pipeline {
                 "struggle": "learning",
                 "intention": "To build something" 
             }'
-            curl -X GET http://host.docker.internal:8000/entries
+            curl -X GET http://localhost:8000/entries
             echo "test successful" 
             
           '''
