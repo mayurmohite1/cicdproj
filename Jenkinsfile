@@ -87,9 +87,7 @@ pipeline {
             steps {
                 script {
                     echo "Deploying..."
-                    // Uncomment and modify the below for actual Kubernetes deployment
-                    /*
-                    sh """
+                    sh '''
                         kubectl apply -f ./k8s/db-configMap.yaml
                         kubectl apply -f ./k8s/db-init-configMap.yaml
                         kubectl apply -f ./k8s/db-secret.yaml
@@ -98,8 +96,8 @@ pipeline {
                         sleep 10
                         kubectl get pods
                         kubectl get svc app-service
-                    """
-                    */
+                    '''
+
                 }
             }
         }
