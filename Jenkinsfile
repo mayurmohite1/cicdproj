@@ -83,24 +83,63 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                script {
-                    echo "Deploying..."
-                    sh '''
-                        kubectl apply -f ./k8s/db-configMap.yaml
-                        kubectl apply -f ./k8s/db-init-configMap.yaml
-                        kubectl apply -f ./k8s/db-secret.yaml
-                        kubectl apply -f ./k8s/postgres-deployment.yaml
-                        kubectl apply -f ./k8s/app-deployment.yaml
-                        sleep 10
-                        kubectl get pods
-                        kubectl get svc app-service
-                    '''
+        // stage('Deploy') {
+        //     steps {
+        //         script {
+        //             echo "Deploying..."
+        //             sh '''
+        //                 kubectl apply -f ./k8s/db-configMap.yaml
+        //                 kubectl apply -f ./k8s/db-init-configMap.yaml
+        //                 kubectl apply -f ./k8s/db-secret.yaml
+        //                 kubectl apply -f ./k8s/postgres-deployment.yaml
+        //                 kubectl apply -f ./k8s/app-deployment.yaml
+        //                 sleep 10
+        //                 kubectl get pods
+        //                 kubectl get svc app-service
+        //             '''
 
-                }
+        //         }
+        //     }
+        // }
+
+        stage('Deploy') {
+         steps {
+        script {
+            echo "Deploying to Kubernetes..."
+
+            withCredentials([
+                string(credentialsId: 'aws_access_key', variable: 'AWS_ACCESS_KEY_ID'),
+                string(credentialsId: 'aws_secret_access_key', variable: 'AWS_SECRET_ACCESS_KEY')
+            ]) {
+                sh """
+                    export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                    export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                    export AWS_DEFAULT_REGION=us-east-1
+
+                    # Create kubeconfig for Jenkins user
+                    aws eks update-kubeconfig \
+                      --name myapp-eks-cluster \
+                      --region us-east-1
+
+                    # Sanity check
+                    kubectl get nodes
+
+                    # Deploy manifests
+                    kubectl apply -f ./k8s/db-configMap.yaml
+                    kubectl apply -f ./k8s/db-init-configMap.yaml
+                    kubectl apply -f ./k8s/db-secret.yaml
+                    kubectl apply -f ./k8s/postgres-deployment.yaml
+                    kubectl apply -f ./k8s/app-deployment.yaml
+
+                    sleep 10
+                    kubectl get pods
+                    kubectl get svc
+                """
             }
         }
+    }
+}
+
     }
 
     post {
