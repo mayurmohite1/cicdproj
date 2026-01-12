@@ -16,15 +16,18 @@ module "myapp-vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "6.5.0"
 
-  name            = "myapp-vpc"
-  cidr            = var.vpc_cidr_block
+  name = "myapp-vpc"
+  cidr = var.vpc_cidr_block
+
+  azs             = data.aws_availability_zones.azs.names
   private_subnets = var.private_subnet_cidr_blocks
   public_subnets  = var.public_subnet_cidr_blocks
-  azs             = data.aws_availability_zones.azs.names
 
-  enable_nat_gateway   = true
-  single_nat_gateway   = true
-  enable_dns_hostnames = true
+  # 🔥 Networking (CRITICAL)
+  enable_nat_gateway         = true
+  single_nat_gateway         = true
+  enable_dns_hostnames       = true
+  manage_default_route_table = true
 
   tags = {
     "kubernetes.io/cluster/myapp-eks-cluster" = "shared"
