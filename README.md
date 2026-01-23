@@ -29,15 +29,15 @@ The following knowledge, tools and accounts are required for this project: <br/>
 If the pre-requisites are met, then the project can be done without any issues.
 
 ## 1. Containerizing the application and pushing to dockerhub
-The first thing that starts this project is to create a Dockerfile that is used to build the image 'tanvirj9/journal-app:1.0'. <br>
-`docker build -t tanvirj9/journal-app:1.0 .` <br>
+The first thing that starts this project is to create a Dockerfile that is used to build the image 'mayurmohite1/cicd_journal_app:1.0.0'. <br>
+`docker build -t mayurmohite1/cicd_journal_app:1.0.0` <br>
 
 The app is tested locally using the `compose.yaml` file. <br>
 `docker-compose -f compose.yaml up` <br>
 Following curl command are used to test if the app and postgres is working properly.
 1. Create a post:  
    ```bash
-   curl -X POST http://host.docker.internal:8000/entries \
+   curl -X POST http://localhost:8000/entries \
    -H "Content-Type: application/json" \
    -d '{
       "work": "Kubernetes", 
@@ -47,10 +47,10 @@ Following curl command are used to test if the app and postgres is working prope
 
 2. Get the post:
    ```bash
-   curl -X GET http://host.docker.internal:8000/entries
+   curl -X GET http://localhost:8000/entries
 
 Once the test succeeds, this image is pushed to the public dockerhub repository <br>
-`docker push tanvirj9/journal-app:1.1` <br>
+`docker push mayurmohite1/cicd_journal_app:1.0.1` <br>
 The above command is for testing purposes, it will have automated tag increment within the jenkinsfile during pushing to registry.
 
 *NOTE*: Certain changes are done in the `compose.yaml` file (tag name of app is changed for auto version incrementing) after testing. <br/>
@@ -203,7 +203,7 @@ This stage handles Docker image creation and automated API testing.
 
 *Docker Build*<br/>
 Builds the image with a dynamic version:<br/>
-`docker build -t tanvirj9/journal-app:1.0.${BUILD_NUMBER} .` <br/>
+`docker build -t mayurmohite1/cicd_journal_app:1.0.${BUILD_NUMBER} .` <br/>
 
 *Container Startup and Testing* <br/>
 Uses Docker Compose to start the application:<br/>
@@ -217,7 +217,7 @@ If successful, "test successful" is printed.
 
 3. **Stage: Docker Push**
 Pushes the newly built versioned Docker image to Docker Hub:<br/>
-`docker push tanvirj9/journal-app:1.0.${BUILD_NUMBER}`<br/>
+`docker push mayurmohite1/cicd_journal_app:1.0.${BUILD_NUMBER}`<br/>
 
 After pushing, the local Docker Compose environment is shut down:<br/>
 `docker compose -f compose.yaml down`

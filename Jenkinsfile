@@ -81,27 +81,6 @@ pipeline {
                     }
                 }
             }
-        }
-
-        // stage('Deploy') {
-        //     steps {
-        //         script {
-        //             echo "Deploying..."
-        //             sh '''
-        //                 kubectl apply -f ./k8s/db-configMap.yaml
-        //                 kubectl apply -f ./k8s/db-init-configMap.yaml
-        //                 kubectl apply -f ./k8s/db-secret.yaml
-        //                 kubectl apply -f ./k8s/postgres-deployment.yaml
-        //                 kubectl apply -f ./k8s/app-deployment.yaml
-        //                 sleep 10
-        //                 kubectl get pods
-        //                 kubectl get svc app-service
-        //             '''
-
-        //         }
-        //     }
-        // }
-
         stage('Deploy') {
          steps {
         script {
